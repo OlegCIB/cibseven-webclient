@@ -379,12 +379,13 @@ You may obtain a copy of the License at
 				<configuration>
 					<source>${maven.compiler.source}</source>
 					<target>${maven.compiler.target}</target>
+					<release>${maven.compiler.target}</release>
 					<compilerArgs>
 						<arg>-parameters</arg>
 						<arg>-Werror</arg>
 					</compilerArgs>
 				</configuration>
-			</plugin>	
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
