@@ -139,6 +139,7 @@
 					<include>*.jpg</include>
 					<include>*.txt</include>
 					<include>**/*.scss</include>
+					<include>META-INF/**</include>
 				</includes>
 			</resource>
 		</resources>
