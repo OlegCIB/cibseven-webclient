@@ -90,6 +90,7 @@ You may obtain a copy of the License at
 			<modules>
 				<module>cibseven-webclient-web</module>
 				<module>cibseven-webclient-core</module>
+				<module>cibseven-webclient-web-sb4</module>
 			</modules>
 			<build>
 				<plugins>
@@ -385,7 +386,7 @@ You may obtain a copy of the License at
 						<arg>-Werror</arg>
 					</compilerArgs>
 				</configuration>
-			</plugin>
+			</plugin>	
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>

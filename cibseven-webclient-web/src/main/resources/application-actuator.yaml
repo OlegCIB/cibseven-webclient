@@ -1,0 +1,9 @@
+# Actuator endpoint access (Spring Boot 3 syntax).
+management:
+  endpoints:
+    enabled-by-default: false # Disable all endpoints by default
+  endpoint:
+    info:
+      enabled: true # Enable the info endpoint
+    health:
+      enabled: true # Enable the health endpoint

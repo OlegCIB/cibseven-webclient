@@ -1,0 +1,10 @@
+# Actuator endpoint access (Spring Boot 4 syntax).
+management:
+  endpoints:
+    access:
+      default: none # Disable all endpoints by default
+  endpoint:
+    info:
+      access: read-only # Enable the info endpoint
+    health:
+      access: read-only # Enable the health endpoint
