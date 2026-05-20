@@ -1,7 +1,3 @@
-server:
-  port: 8081
-  servlet:
-    context-path: /webapp
 spring:
   banner:
     location: classpath:banner.txt
@@ -9,7 +5,6 @@ spring:
     import:
       - optional:classpath:cibseven-webclient.properties
       - optional:classpath:cibseven-webclient.yaml
-      - optional:file:/home/oleg/cibseven/cibseven/distro/run4/distro/target/configuration/userlib/cibseven-webclient.properties
   datasource:
     url:
     username:
