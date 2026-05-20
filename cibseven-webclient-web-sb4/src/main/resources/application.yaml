@@ -1,3 +1,7 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /webapp
 spring:
   banner:
     location: classpath:banner.txt
@@ -5,7 +9,7 @@ spring:
     import:
       - optional:classpath:cibseven-webclient.properties
       - optional:classpath:cibseven-webclient.yaml
-      - optional:classpath:application-actuator.yaml
+      - optional:file:/home/oleg/cibseven/cibseven/distro/run4/distro/target/configuration/userlib/cibseven-webclient.properties
   datasource:
     url:
     username:
@@ -152,7 +156,7 @@ cibseven:
           email: "info@cibseven.org"
         # webclient server url for the swagger-ui. Only needs to be set if the automatic detection is wrong.
         url:
-
+        
     deprecated:
     # Check permission for some usecases in the webclient backend (behaviour until 2.2.0)
       authorization:
@@ -171,15 +175,19 @@ springdoc:
     tagsSorter: alpha
     doc-expansion: none
 
-# Actuator: limit exposure to /actuator/info and /actuator/health
-# (endpoint access control — enabled/access — lives in application-actuator.yaml per Spring Boot flavour)
+# Activate "/actuator/info" and "/actuator/health" endpoints
 management:
   endpoints:
+    access:
+      default: none # Disable all endpoints by default
     web:
       exposure:
-        include: health,info
+        include: health,info # Include only health and info endpoints
   endpoint:
+    info:
+      access: read-only # Enable the info endpoint
     health:
+      access: read-only # Enable the health endpoint
       probes:
         enabled: true # Enable health probes (if applicable)
   info:

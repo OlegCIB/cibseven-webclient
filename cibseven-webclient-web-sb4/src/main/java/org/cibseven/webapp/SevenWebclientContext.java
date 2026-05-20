@@ -18,6 +18,7 @@ package org.cibseven.webapp;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.cibseven.webapp.auth.BaseUserProvider;
@@ -35,10 +36,12 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.CacheControl;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverters;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -49,10 +52,9 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.WebContentInterceptor;
 
-import tools.jackson.core.StreamReadConstraints;
-import tools.jackson.core.json.JsonFactory;
-import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.core.StreamReadConstraints;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Configuration
 @ConditionalOnProperty(
@@ -77,24 +79,25 @@ public class SevenWebclientContext implements WebMvcConfigurer, HandlerMethodArg
 	int jacksonParserMaxSize;
 
     @Bean
-    public JsonMapper objectMapper() {
+    public ObjectMapper objectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
         StreamReadConstraints streamReadConstraints = StreamReadConstraints
                 .builder()
                 .maxStringLength(jacksonParserMaxSize)
                 .build();
-        JsonFactory jsonFactory = JsonFactory.builder()
-                .streamReadConstraints(streamReadConstraints)
-                .build();
-        return JsonMapper.builder(jsonFactory)
-                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-                .build();
+        objectMapper.getFactory().setStreamReadConstraints(streamReadConstraints);
+        objectMapper.registerModule(new JavaTimeModule());
+        return objectMapper;
     }
 
 	@Override
+	@SuppressWarnings("removal")
 	public void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
+		MappingJackson2HttpMessageConverter jacksonConverter = new MappingJackson2HttpMessageConverter();
+		jacksonConverter.setObjectMapper(objectMapper());
 		builder.registerDefaults()
 				.withStringConverter(new StringHttpMessageConverter(StandardCharsets.UTF_8))
-				.withJsonConverter(new JacksonJsonHttpMessageConverter(objectMapper()))
+				.withJsonConverter(jacksonConverter)
 				.addCustomConverter(new FormHttpMessageConverter())
 				.addCustomConverter(new ResourceHttpMessageConverter())
 				.addCustomConverter(new ByteArrayHttpMessageConverter());
@@ -185,10 +188,15 @@ public class SevenWebclientContext implements WebMvcConfigurer, HandlerMethodArg
 		havingValue = "true",
 		matchIfMissing = true
 	)
+	@SuppressWarnings("removal")
 	public CustomRestTemplate customRestTemplate() {
-		// Create a new CustomRestTemplate instance
-		// It will be configured via @PostConstruct using @Autowired dependencies
-		return new CustomRestTemplate();
+		CustomRestTemplate template = new CustomRestTemplate();
+		MappingJackson2HttpMessageConverter jacksonConverter = new MappingJackson2HttpMessageConverter();
+		jacksonConverter.setObjectMapper(objectMapper());
+		List<HttpMessageConverter<?>> converters = new ArrayList<>(template.getMessageConverters());
+		converters.replaceAll(c -> c instanceof JacksonJsonHttpMessageConverter ? jacksonConverter : c);
+		template.setMessageConverters(converters);
+		return template;
 	}
 
 }
