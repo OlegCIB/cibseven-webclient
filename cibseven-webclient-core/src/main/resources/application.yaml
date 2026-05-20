@@ -5,7 +5,7 @@ spring:
     import:
       - optional:classpath:cibseven-webclient.properties
       - optional:classpath:cibseven-webclient.yaml
-      - classpath:application-actuator.yaml
+      - optional:classpath:application-actuator.yaml
   datasource:
     url:
     username:
